@@ -54,6 +54,7 @@ local term_key_cache = {}
 local sorted_keys = {}
 _G.BetterTerm = _G.BetterTerm or {}
 _G.BetterTerm.switch_funcs = _G.BetterTerm.switch_funcs or {}
+_G.BetterTermLastActiveTab = nil
 
 --- Get inactive clickable tab string
 ---@param key string
@@ -137,6 +138,7 @@ local function smooth_open(term_key, current_tab)
   term.jobid = vim.b.terminal_job_id
   vim.bo.ft = ft
   update_term_winbar()
+  _G.BetterTermLastActiveTab = term_key
 end
 
 --- Insert new terminal configuration
@@ -431,8 +433,8 @@ function M.setup(user_options)
   api_funcs.create_autocmd("BufWipeout", {
     group = group,
     pattern = options.prefix .. "*",
-    callback = function(args)
-      local bufname = fn.bufname(args.buf)
+    callback = function()
+      local bufname = fn.bufname("%")
       vim.keymap.del({ "t" }, tostring(options.jump_tab_mapping:gsub("$tab", terms[bufname].index)))
       local index = indexOf(sorted_keys, bufname)
       terms[bufname] = nil
@@ -469,6 +471,7 @@ function M.setup(user_options)
       startinsert()
       vim.keymap.set("t", options.new_tab_mapping, function()
         local key_term = create_term_key(term_current)
+        _G.BetterTermLastActiveTab = key_term
         smooth_new_terminal(key_term, api_funcs.get_current_tabpage(), nil, {})
       end, { buffer = true })
     end,
