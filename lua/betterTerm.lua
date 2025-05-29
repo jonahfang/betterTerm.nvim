@@ -483,7 +483,6 @@ function M.setup(user_options)
       vim.keymap.set("t", options.new_tab_mapping, function()
         local key_term = create_term_key(term_current)
         local current_tab = api_funcs.get_current_tabpage()
-        _G.BetterTermLastLastActiveTab = get_term_key_for_tab(current_tab)
         _G.BetterTermLastActiveTab = key_term
         smooth_new_terminal(key_term, current_tab, nil, {})
       end, { buffer = true })
