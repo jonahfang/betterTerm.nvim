@@ -55,6 +55,7 @@ local sorted_keys = {}
 _G.BetterTerm = _G.BetterTerm or {}
 _G.BetterTerm.switch_funcs = _G.BetterTerm.switch_funcs or {}
 _G.BetterTermLastActiveTab = nil
+_G.BetterTermLastLastActiveTab = nil
 
 --- Get inactive clickable tab string
 ---@param key string
@@ -127,11 +128,21 @@ local function get_term_key(num)
   return term_key_cache[num]
 end
 
+local function get_term_key_for_tab(tabpage_id)
+   for key, term in pairs(terms) do
+       if term.tabpage == tabpage_id then
+           return key
+       end
+   end
+   return nil  -- No terminal found for this tabpage
+end
+
 --- Open terminal
 ---@param term_key string
 ---@param current_tab number?
 local function smooth_open(term_key, current_tab)
   current_tab = current_tab or api_funcs.get_current_tabpage()
+  _G.BetterTermLastLastActiveTab = get_term_key_for_tab(current_tab)
   local term = terms[term_key]
   term.tabpage = current_tab
   cmd.b(term.bufid)
@@ -471,8 +482,10 @@ function M.setup(user_options)
       startinsert()
       vim.keymap.set("t", options.new_tab_mapping, function()
         local key_term = create_term_key(term_current)
+        local current_tab = api_funcs.get_current_tabpage()
+        _G.BetterTermLastLastActiveTab = get_term_key_for_tab(current_tab)
         _G.BetterTermLastActiveTab = key_term
-        smooth_new_terminal(key_term, api_funcs.get_current_tabpage(), nil, {})
+        smooth_new_terminal(key_term, current_tab, nil, {})
       end, { buffer = true })
     end,
   })
