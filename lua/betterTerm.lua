@@ -123,7 +123,9 @@ end
 ---@param num number
 ---@return string
 local function get_term_key(num)
-  if not num then return options.prefix .. "0" end
+  if not num then
+       return options.prefix .. "0"
+  end
   term_key_cache[num] = term_key_cache[num] or (options.prefix .. num)
   return term_key_cache[num]
 end
@@ -142,7 +144,9 @@ end
 ---@param current_tab number?
 local function smooth_open(term_key, current_tab)
   current_tab = current_tab or api_funcs.get_current_tabpage()
-  _G.BetterTermLastLastActiveTab = get_term_key_for_tab(current_tab)
+  if _G.BetterTermLastActiveTab then
+     _G.BetterTermLastLastActiveTab = _G.BetterTermLastActiveTab
+  end
   local term = terms[term_key]
   term.tabpage = current_tab
   cmd.b(term.bufid)
@@ -483,6 +487,9 @@ function M.setup(user_options)
       vim.keymap.set("t", options.new_tab_mapping, function()
         local key_term = create_term_key(term_current)
         local current_tab = api_funcs.get_current_tabpage()
+        if _G.BetterTermLastActiveTab then
+            _G.BetterTermLastLastActiveTab = _G.BetterTermLastActiveTab
+        end
         _G.BetterTermLastActiveTab = key_term
         smooth_new_terminal(key_term, current_tab, nil, {})
       end, { buffer = true })
