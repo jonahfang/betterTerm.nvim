@@ -143,6 +143,9 @@ end
 ---@param term_key string
 ---@param current_tab number?
 local function smooth_open(term_key, current_tab)
+  if not terms[term_key] then
+    return
+  end
   current_tab = current_tab or api_funcs.get_current_tabpage()
   if _G.BetterTermLastActiveTab then
      _G.BetterTermLastLastActiveTab = _G.BetterTermLastActiveTab
